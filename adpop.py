@@ -6,6 +6,19 @@ import area_code_nanp
 import random_address
 
 
+# Function to install packages via pip (aka Pip Cheat)
+def install_library(package):
+    # Run pip as a subprocess
+    subprocess.call(['pip', 'install', package])
+    return
+
+# List of Libraries to install
+libraries = ["names", "py-area-code-nanp", "random_address"]
+
+# Install libraries
+for library in libraries:
+    install_library(library)
+
 # Number of users to create (default is 10k)
 global user_count
 user_count = 10
