@@ -144,30 +144,18 @@ def generate_random_data():
     # Generates a random address
     current_address = random_address.real_random_address()
     
+    # Create list fo required fields
     required_keys = ["address1", "city", "state", "postalCode"]
     
+    # If any fields are missing, create new address
     for key in required_keys:
         if key not in list(current_address.keys()):
-            print("{} missing from generated address".format(key))
+            print("{} missing from generated address. Generating new one".format(key))
             current_address = random_address.real_random_address()
         else:
-            #print("key exists")
             pass
-            
     
-
-    
-    
-    
-    # Make sure all the require fields are returned from the address
-    #while required_keys not in list(current_address.keys()):
-    #    print("Missing fields")
-    #    print(current_address)
-    #    current_address = random_address.real_random_address()
-        
-    #print(current_address.keys())
-    
-    # not all of these always exist
+    # Not all of these always exist
     try:
         street_address = current_address["address1"]
         #print(street_address)
@@ -177,8 +165,6 @@ def generate_random_data():
         #print(state)
         postal_code = current_address["postalCode"]
         #print(postal_code)
-        print("succeeded")
-        print()
     except:
         print(current_address)
     
@@ -231,7 +217,6 @@ def generate_password(password_length):
     # Create random password using the given length
     password_list = random.sample(all_characters, password_length)
     password = ''.join(password_list)
-    #print(password)
     
     return password
 
@@ -297,7 +282,6 @@ def generate_ad_user(domain, organization_unit, company_name, departments):
         "Title":Title,
         "OfficePhone":OfficePhone
     }
-    #print(ad_user_data)
 
     return ad_user_data
 
@@ -311,7 +295,6 @@ def create_users(domain, company_name, departments, number_of_users):
 
         # Generate active directory attributes for a given user
         ad_user = generate_ad_user(domain, organization_unit, company_name, departments)
-        #print(ad_user["Password"])
 
         # Powershell command to actually create the user
         user_command = "New-ADUser -SamAccountName '{}' -Name '{}' -Path '{}' -AccountPassword (ConvertTo-SecureString -AsPlainText '{}' -Force) -Enabled $true -GivenName '{}' -Surname '{}' -DisplayName '{}' -EmailAddress '{}' -StreetAddress '{}' -City '{}' -PostalCode '{}' -State '{}' -Country '{}' -UserPrincipalName '{}' -Company '{}' -Department '{}' -Title '{}' -OfficePhone '{}' -PasswordNeverExpires $true -ChangePasswordAtLogon $false".format(
@@ -339,7 +322,7 @@ def create_users(domain, company_name, departments, number_of_users):
         try:
             subprocess.check_output(["powershell.exe", user_command])
         except subprocess.CalledProcessError as e:
-            print("Error creating user.")
+            print("Error creating user. Likely duplicate User Principle Name.")
             i -= 1
         
         i += 1
@@ -384,13 +367,12 @@ def create_ou_users(domain, company_name, departments, number_of_users):
         try:
             subprocess.check_output(["powershell.exe", user_command])
         except subprocess.CalledProcessError as e:
-            print("Error creating user.")
+            print("Error creating user. Likely duplicate User Principle Name."))
             i -= 1
         
         i += 1
     
     return
-
 
 
 # Beginning of main
@@ -422,7 +404,4 @@ if __name__ == '__main__':
         print("Unknown character entered. Use y for yes, and n for no.")
     
 
-    
 
-    #create_users(domain, organization_unit, dns_domain_name, company_name, departments)
-    #generate_password(password_length)
