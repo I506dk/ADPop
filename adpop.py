@@ -398,6 +398,7 @@ if __name__ == '__main__':
         print("Continuing using groups...")
         
         # Create ad users
+        # Groups needs to be created as well
         create_users(Domain, Company_Name, Departments, user_count)
         
     else:
