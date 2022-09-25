@@ -333,7 +333,11 @@ def create_users(domain, company_name, departments, number_of_users):
         )
 
         # Create user
-        subprocess.check_output(["powershell.exe", user_command])
+        try:
+            subprocess.check_output(["powershell.exe", user_command])
+        except subprocess.CalledProcessError as e:
+            print("Error creating user.")
+            i -= 1
         
         i += 1
 
@@ -374,7 +378,11 @@ def create_ou_users(domain, company_name, departments, number_of_users):
         )
 
         # Create user
-        subprocess.check_output(["powershell.exe", user_command])
+        try:
+            subprocess.check_output(["powershell.exe", user_command])
+        except subprocess.CalledProcessError as e:
+            print("Error creating user.")
+            i -= 1
         
         i += 1
     
