@@ -251,17 +251,20 @@ def generate_ad_user(domain, organization_unit, company_name, departments):
             dc_domain += "DC=" + str(domain_pieces[i]) + ","
         else: 
             dc_domain += "DC=" + str(domain_pieces[i])
-        i += 1    
+        i += 1
+        
+    # Add in random intial so there aren't duplicate users (or as many at least)
+    middle_initial = (random.choice(string.ascii_letters)).upper()
 
-    # SamAccountName is first inital . last name
-    SamAccountName = str(current_user["first name"][0] + "." + current_user["last name"])
-    Name = str(current_user["full name"])
+    # SamAccountName is first name . intial . last name
+    SamAccountName = str(current_user["first name"] + "." + middle_initial + "." + current_user["last name"])
+    Name = str(current_user["first name"] + " " + middle_initial + " " + current_user["last name"])
     Path = str("OU=" + organization_unit + "," + dc_domain)
     Password = generate_password(password_length)
     GivenName = str(current_user["first name"])
     Surname = str(current_user["last name"])
     DisplayName = Name
-    EmailAddress = str(current_user["first name"] + "." + current_user["last name"] + "@" + domain)
+    EmailAddress = str(SamAccountName + "@" + domain)
     StreetAddress = str(current_user["street"])
     City = str(current_user["city"])
     PostalCode = str(current_user["postalcode"])
@@ -395,26 +398,25 @@ if __name__ == '__main__':
     
     # Determine whether to use groups or ou's for organization
     # Default to using groups and not ou's
-    #divide_by_ou = "no"
-    #divide_by_group = "yes"
-    
+
     # Get input from user on groups vs ou's
     structure = input("Defaults to using groups. Use organization units instead? (y/n): ")
     if ((str(structure.lower()) == 'y') or (str(structure.lower()) == 'yes')):
         print("Continuing using organization units...")
         
         # Create the necessary OUs
+        # Add in checks for existing OUs
         create_ou(Domain, Departments)
         
         # Create ad users
-        #create_ou_users(Domain, Company_Name, Departments, user_count)
+        create_ou_users(Domain, Company_Name, Departments, user_count)
         
         
     elif ((str(structure.lower()) == 'n') or (str(structure.lower()) == 'no')):
         print("Continuing using groups...")
         
         # Create ad users
-        #create_users(Domain, Company_Name, Departments, user_count)
+        create_users(Domain, Company_Name, Departments, user_count)
         
     else:
         print("Unknown character entered. Use y for yes, and n for no.")
