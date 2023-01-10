@@ -1,5 +1,6 @@
 import string
 import random
+import argparse
 import subprocess
 
 # Function to install packages via pip (aka Pip Cheat)
@@ -12,8 +13,8 @@ def install_library(package):
 libraries = ["names", "py-area-code-nanp", "random_address"]
 
 # Install libraries
-for library in libraries:
-    install_library(library)
+#for library in libraries:
+#    install_library(library)
     
 import names
 import area_code_nanp
@@ -21,18 +22,18 @@ import random_address
 
 
 # Number of users to create (default is 10k)
-global user_count
-user_count = 10
+#global user_count
+#user_count = 10
 
 # Length of passwords for users (default is 16)
-global password_length
-password_length = 16
+#global password_length
+#password_length = 16
 
 # Domain name (default is lab.local)
-Domain = "lab.local"
+#Domain = "test.lab"
 
 # Company name (default is Test Company)
-Company_Name = "Test Company"
+#Company_Name = "Test Company"
 
 # Dictionary of different departments and positions
 Departments = {
@@ -47,63 +48,6 @@ Departments = {
     "Contracts":("Manager", "Coordinator", "Clerk"),
     "Purchasing":("Manager", "Coordinator", "Clerk", "Purchaser")
 }
-
-# Dictionary of US states and their abbreviations
-global us_states
-us_states = {
-    "AL":"Alabama", 
-    "AK":"Alaska",
-    "AZ":"Arizona",
-    "AR":"Arkansas",
-    "CA":"California",
-    "CO":"Colorado",
-    "CT":"Connecticut",
-    "DE":"Delaware",
-    "DC":"District of Columbia",
-    "FL":"Florida",
-    "GA":"Georgia",
-    "HI":"Hawaii",
-    "ID":"Idaho",
-    "IL":"Illinois",
-    "IN":"Indiana",
-    "IA":"Iowa",
-    "KS":"Kansas",
-    "KY":"Kentucky",
-    "LA":"Louisiana",
-    "ME":"Maine",
-    "MT":"Montana",
-    "NE":"Nebraska",
-    "NV":"Nevada",
-    "NH":"New Hampshire",
-    "NJ":"New Jersey",
-    "NM":"New Mexico",
-    "NY":"New York",
-    "NC":"North Carolina",
-    "ND":"North Dakota",
-    "OH":"Ohio",
-    "OK":"Oklahoma",
-    "OR":"Oregon",
-    "MD":"Maryland",
-    "MA":"Massachusetts",
-    "MI":"Michigan",
-    "MN":"Minnesota",
-    "MS":"Mississippi",
-    "MO":"Missouri",
-    "PA":"Pennsylvania",
-    "RI":"Rhode Island",
-    "SC":"South Carolina",
-    "SD":"South Dakota",
-    "TN":"Tennessee",
-    "TX":"Texas",
-    "UT":"Utah",
-    "VT":"Vermont",
-    "VA":"Virginia",
-    "WA":"Washington",
-    "WV":"West Virginia",
-    "WI":"Wisconsin",
-    "WY":"Wyoming"
-}
-
 
 # Create OUs within the domain (OUs are taken from the departments)
 def create_ou(domain, departments):
@@ -136,6 +80,61 @@ def create_ou(domain, departments):
 
 # Function to generate random "real" user data
 def generate_random_data():
+    # Dictionary of US states and their abbreviations
+    us_states = {
+        "AL":"Alabama", 
+        "AK":"Alaska",
+        "AZ":"Arizona",
+        "AR":"Arkansas",
+        "CA":"California",
+        "CO":"Colorado",
+        "CT":"Connecticut",
+        "DE":"Delaware",
+        "DC":"District of Columbia",
+        "FL":"Florida",
+        "GA":"Georgia",
+        "HI":"Hawaii",
+        "ID":"Idaho",
+        "IL":"Illinois",
+        "IN":"Indiana",
+        "IA":"Iowa",
+        "KS":"Kansas",
+        "KY":"Kentucky",
+        "LA":"Louisiana",
+        "ME":"Maine",
+        "MT":"Montana",
+        "NE":"Nebraska",
+        "NV":"Nevada",
+        "NH":"New Hampshire",
+        "NJ":"New Jersey",
+        "NM":"New Mexico",
+        "NY":"New York",
+        "NC":"North Carolina",
+        "ND":"North Dakota",
+        "OH":"Ohio",
+        "OK":"Oklahoma",
+        "OR":"Oregon",
+        "MD":"Maryland",
+        "MA":"Massachusetts",
+        "MI":"Michigan",
+        "MN":"Minnesota",
+        "MS":"Mississippi",
+        "MO":"Missouri",
+        "PA":"Pennsylvania",
+        "RI":"Rhode Island",
+        "SC":"South Carolina",
+        "SD":"South Dakota",
+        "TN":"Tennessee",
+        "TX":"Texas",
+        "UT":"Utah",
+        "VT":"Vermont",
+        "VA":"Virginia",
+        "WA":"Washington",
+        "WV":"West Virginia",
+        "WI":"Wisconsin",
+        "WY":"Wyoming"
+    }
+
     # Generate a random first and last names
     current_first_name = names.get_first_name()
     current_last_name = names.get_last_name()
@@ -367,20 +366,49 @@ def create_ou_users(domain, company_name, departments, number_of_users):
         try:
             subprocess.check_output(["powershell.exe", user_command])
         except subprocess.CalledProcessError as e:
-            print("Error creating user. Likely duplicate User Principle Name."))
+            print("Error creating user. Likely duplicate User Principle Name.")
             i -= 1
         
         i += 1
     
     return
+    
+    
+def parse():
+    parser = argparse.ArgumentParser(
+        usage="adpop.py [-d 'your.domain'] [-u 10000] [-c 'Your Company'] [-m groups/ous] [-p 16]",
+        description="Create realistic active directory users."
+    )
+
+    # Add argument that contains the domain name that users will be created in
+    parser.add_argument("-d", dest="domain", default="test.lab", action="store", type=str, required=False,
+                        help="The fully qualified domain name where users should be created. Default is 'test.lab'")
+    # Add argument that contains the number of users to create
+    parser.add_argument("-u", dest="user_count", default=10000, action="store", type=int, required=False,
+                        help="The number of users to create. Default is 10k.")
+    # Add argument that contains the company name to assign to users                 
+    parser.add_argument("-c", dest="company_name", default="Test Company", action="store", type=str, required=False,
+                        help="The company name to be assigned to users. Default is 'Test Company'")
+    # Add argument that the creation mode, Organizational Units vs. Groups
+    parser.add_argument("-m", dest="mode", action="store", default="groups", type=str, required=False,
+                        help="The mode to run the script in. Creating OUs vs Creating Groups. Default is 'groups'.")
+    # Add argument that the creation mode, Organizational Units vs. Groups
+    parser.add_argument("-p", dest="password_length", action="store", default=16, type=int, required=False,
+                        help="The password length for created users. Default is 16.")
+
+    return parser.parse_args()
 
 
 # Beginning of main
 if __name__ == '__main__':
+    # Get command line arguments
+    args = parse()
+    print(args)
     
     # Determine whether to use groups or ou's for organization
     # Default to using groups and not ou's
 
+    '''
     # Get input from user on groups vs ou's
     structure = input("Defaults to using groups. Use organization units instead? (y/n): ")
     if ((str(structure.lower()) == 'y') or (str(structure.lower()) == 'yes')):
@@ -403,6 +431,6 @@ if __name__ == '__main__':
         
     else:
         print("Unknown character entered. Use y for yes, and n for no.")
-    
+    '''
 
 
