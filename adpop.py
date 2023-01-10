@@ -13,8 +13,8 @@ def install_library(package):
 libraries = ["names", "py-area-code-nanp", "random_address"]
 
 # Install libraries
-#for library in libraries:
-#    install_library(library)
+for library in libraries:
+    install_library(library)
     
 import names
 import area_code_nanp
