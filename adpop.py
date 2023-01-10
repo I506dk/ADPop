@@ -409,8 +409,12 @@ if __name__ == '__main__':
         print("Default to groups")
     elif "ou" in str(mode).lower():
         print("Default to OUs")
+    elif "organization unit" in str(mode).lower():
+        print("Default to OUs")
+    elif "organizational unit" in str(mode).lower():
+        print("Default to OUs")
     else:
-        print("idk")
+        print("Unknown mode specified.")
     
 
     '''
