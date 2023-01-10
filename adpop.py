@@ -9,31 +9,22 @@ def install_library(package):
     subprocess.call(['pip', 'install', package])
     return
 
-# List of Libraries to install
-libraries = ["names", "py-area-code-nanp", "random_address"]
-
-# Install libraries
-for library in libraries:
-    install_library(library)
-    
-import names
-import area_code_nanp
-import random_address
-
-
-# Number of users to create (default is 10k)
-#global user_count
-#user_count = 10
-
-# Length of passwords for users (default is 16)
-#global password_length
-#password_length = 16
-
-# Domain name (default is lab.local)
-#Domain = "test.lab"
-
-# Company name (default is Test Company)
-#Company_Name = "Test Company"
+# Install missing packages
+while True:
+    try:
+        import names
+        import area_code_nanp
+        import random_address
+        break
+    except Exception as e:
+        Missing_Library = str(e).strip("No module named ")
+        Missing_Library = Missing_Library.strip(" ")
+        
+        if Missing_Library == "area_code_nanp":
+            install_library("py-area-code-nanp")
+        else:
+            install_library(Missing_Library)
+            
 
 # Dictionary of different departments and positions
 Departments = {
@@ -49,7 +40,7 @@ Departments = {
     "Purchasing":("Manager", "Coordinator", "Clerk", "Purchaser")
 }
 
-# Create OUs within the domain (OUs are taken from the departments)
+# Define function to create OUs within the domain (OUs are taken from the departments)
 def create_ou(domain, departments):
     # Break domain name apart so that it is in DC= format
     dc_domain = ""
@@ -78,7 +69,7 @@ def create_ou(domain, departments):
     return
 
 
-# Function to generate random "real" user data
+# Define function to generate random "real" user data
 def generate_random_data():
     # Dictionary of US states and their abbreviations
     us_states = {
@@ -198,7 +189,7 @@ def generate_random_data():
     return user_data
 
 
-# Create a random password (default length is 16 characters)
+# Define function to create a random password (default length is 16 characters)
 def generate_password(password_length):
     # Get all lowercase, uppercase, numbers, and symbols
     lowercase = string.ascii_lowercase
@@ -220,7 +211,7 @@ def generate_password(password_length):
     return password
 
 
-# Generate all active directory attributes for user
+# Define function to generate all active directory attributes for user
 def generate_ad_user(domain, organization_unit, company_name, departments):
     # Get random user attributes
     current_user = generate_random_data()
@@ -283,8 +274,9 @@ def generate_ad_user(domain, organization_unit, company_name, departments):
     }
 
     return ad_user_data
+    
 
-# Create the user in the domain using powershell
+# Define function to crate users using powershell
 def create_users(domain, company_name, departments, number_of_users):
     # Create all Active Directory users
     i = 0
@@ -323,12 +315,12 @@ def create_users(domain, company_name, departments, number_of_users):
         except subprocess.CalledProcessError as e:
             print("Error creating user. Likely duplicate User Principle Name.")
             i -= 1
-        
         i += 1
 
     return
     
-    
+
+# Define a function to create users in an OU
 def create_ou_users(domain, company_name, departments, number_of_users):
     # Create all Active Directory users
     i = 0
@@ -368,12 +360,12 @@ def create_ou_users(domain, company_name, departments, number_of_users):
         except subprocess.CalledProcessError as e:
             print("Error creating user. Likely duplicate User Principle Name.")
             i -= 1
-        
         i += 1
     
     return
     
     
+# Define function to parse argument passed via the command line
 def parse():
     parser = argparse.ArgumentParser(
         usage="adpop.py [-d 'your.domain'] [-u 10000] [-c 'Your Company'] [-m groups/ous] [-p 16]",
@@ -403,10 +395,23 @@ def parse():
 if __name__ == '__main__':
     # Get command line arguments
     args = parse()
-    print(args)
+    
+    # Define arguments
+    domain = args.domain
+    user_count = args.user_count
+    company_name = args.company_name
+    mode = args.mode
+    password_length = args.password_length
     
     # Determine whether to use groups or ou's for organization
     # Default to using groups and not ou's
+    if "group" in str(mode).lower():
+        print("Default to groups")
+    elif "ou" in str(mode).lower():
+        print("Default to OUs")
+    else:
+        print("idk")
+    
 
     '''
     # Get input from user on groups vs ou's
