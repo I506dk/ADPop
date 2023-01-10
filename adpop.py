@@ -40,6 +40,20 @@ Departments = {
     "Purchasing":("Manager", "Coordinator", "Clerk", "Purchaser")
 }
 
+
+# Define a function to check if an OU exits
+def check_ou(organization_unit):
+    # Create powershell command
+    ou_command = "Get-ADOrganizationalUnit -Filter 'Name -like \"{}\"'".format(organization_unit)
+    
+    # Check if OU exists
+    ou_check = subprocess.check_output(["powershell.exe", ou_command]).decode("utf-8")
+    if len(ou_check) > 0:
+        return True
+    else:
+        return False
+
+
 # Define function to create OUs within the domain (OUs are taken from the departments)
 def create_ou(domain, departments):
     # Break domain name apart so that it is in DC= format
@@ -56,15 +70,22 @@ def create_ou(domain, departments):
     
     # Create list of departments
     ou_list = list(departments.keys())
-        
-    # Add in checks for OU existance    
-        
+
     # Create OUs with powershell
     for item in ou_list:
-        #print(item) 
-        ou_command = "New-ADOrganizationalUnit -Name '{}' -Path '{}'".format(str(item), dc_domain)
-        print(ou_command)
-        subprocess.check_output(["powershell.exe", ou_command])
+        # Check if OU already exists
+        ou_exists = check_ou(item)
+        
+        if ou_exists == True:
+            pass
+        else:
+            # Create pworshell command
+            ou_command = "New-ADOrganizationalUnit -Name '{}' -Path '{}' | Out-Null".format(str(item), dc_domain)
+            # Create OU
+            try:
+                subprocess.check_output(["powershell.exe", ou_command])
+            except Exception as e:
+                print(e)
     
     return
 
@@ -148,13 +169,9 @@ def generate_random_data():
     # Not all of these always exist
     try:
         street_address = current_address["address1"]
-        #print(street_address)
         city = current_address["city"]
-        #print(city)
         state = current_address["state"]
-        #print(state)
         postal_code = current_address["postalCode"]
-        #print(postal_code)
     except:
         print(current_address)
     
@@ -288,7 +305,7 @@ def create_users(domain, company_name, departments, number_of_users):
         ad_user = generate_ad_user(domain, organization_unit, company_name, departments)
 
         # Powershell command to actually create the user
-        user_command = "New-ADUser -SamAccountName '{}' -Name '{}' -Path '{}' -AccountPassword (ConvertTo-SecureString -AsPlainText '{}' -Force) -Enabled $true -GivenName '{}' -Surname '{}' -DisplayName '{}' -EmailAddress '{}' -StreetAddress '{}' -City '{}' -PostalCode '{}' -State '{}' -Country '{}' -UserPrincipalName '{}' -Company '{}' -Department '{}' -Title '{}' -OfficePhone '{}' -PasswordNeverExpires $true -ChangePasswordAtLogon $false".format(
+        user_command = "New-ADUser -SamAccountName '{}' -Name '{}' -Path '{}' -AccountPassword (ConvertTo-SecureString -AsPlainText '{}' -Force) -Enabled $true -GivenName '{}' -Surname '{}' -DisplayName '{}' -EmailAddress '{}' -StreetAddress '{}' -City '{}' -PostalCode '{}' -State '{}' -Country '{}' -UserPrincipalName '{}' -Company '{}' -Department '{}' -Title '{}' -OfficePhone '{}' -PasswordNeverExpires $true -ChangePasswordAtLogon $false | Out-Null".format(
             ad_user["SamAccountName"],
             ad_user["Name"],
             ad_user["Path"],
@@ -333,7 +350,7 @@ def create_ou_users(domain, company_name, departments, number_of_users):
         ad_user = generate_ad_user(domain, organization_unit, company_name, departments)
         
         # Powershell command to actually create the user
-        user_command = "New-ADUser -SamAccountName '{}' -Name '{}' -Path '{}' -AccountPassword (ConvertTo-SecureString -AsPlainText '{}' -Force) -Enabled $true -GivenName '{}' -Surname '{}' -DisplayName '{}' -EmailAddress '{}' -StreetAddress '{}' -City '{}' -PostalCode '{}' -State '{}' -Country '{}' -UserPrincipalName '{}' -Company '{}' -Department '{}' -Title '{}' -OfficePhone '{}' -PasswordNeverExpires $true -ChangePasswordAtLogon $false".format(
+        user_command = "New-ADUser -SamAccountName '{}' -Name '{}' -Path '{}' -AccountPassword (ConvertTo-SecureString -AsPlainText '{}' -Force) -Enabled $true -GivenName '{}' -Surname '{}' -DisplayName '{}' -EmailAddress '{}' -StreetAddress '{}' -City '{}' -PostalCode '{}' -State '{}' -Country '{}' -UserPrincipalName '{}' -Company '{}' -Department '{}' -Title '{}' -OfficePhone '{}' -PasswordNeverExpires $true -ChangePasswordAtLogon $false | Out-Null".format(
             ad_user["SamAccountName"],
             ad_user["Name"],
             ad_user["Path"],
@@ -407,39 +424,41 @@ if __name__ == '__main__':
     # Default to using groups and not ou's
     if "group" in str(mode).lower():
         print("Default to groups")
+        # Groups needs to be created as well
+        # Create users in groups
+        #create_users(Domain, Company_Name, Departments, user_count)
+        
     elif "ou" in str(mode).lower():
         print("Default to OUs")
-    elif "organization unit" in str(mode).lower():
-        print("Default to OUs")
-    elif "organizational unit" in str(mode).lower():
-        print("Default to OUs")
-    else:
-        print("Unknown mode specified.")
-    
-
-    '''
-    # Get input from user on groups vs ou's
-    structure = input("Defaults to using groups. Use organization units instead? (y/n): ")
-    if ((str(structure.lower()) == 'y') or (str(structure.lower()) == 'yes')):
-        print("Continuing using organization units...")
-        
         # Create the necessary OUs
         # Add in checks for existing OUs
-        create_ou(Domain, Departments)
-        
+        create_ou(domain, Departments)
         # Create ad users
-        create_ou_users(Domain, Company_Name, Departments, user_count)
+        print("Creating users...")
+        create_ou_users(domain, company_name, Departments, user_count)
         
-        
-    elif ((str(structure.lower()) == 'n') or (str(structure.lower()) == 'no')):
-        print("Continuing using groups...")
-        
+    elif "organization unit" in str(mode).lower():
+        print("Default to OUs")
+        # Create the necessary OUs
+        # Add in checks for existing OUs
+        create_ou(domain, Departments)
         # Create ad users
-        # Groups needs to be created as well
-        create_users(Domain, Company_Name, Departments, user_count)
+        print("Creating users...")
+        create_ou_users(domain, company_name, Departments, user_count)
+        
+    elif "organizational unit" in str(mode).lower():
+        print("Default to OUs")
+        # Create the necessary OUs
+        # Add in checks for existing OUs
+        create_ou(domain, Departments)
+        # Create ad users
+        print("Creating users...")
+        create_ou_users(domain, company_name, Departments, user_count)
         
     else:
-        print("Unknown character entered. Use y for yes, and n for no.")
-    '''
+        print("Unknown mode specified. Exiting...")
+    
+    # Print message
+    print("Finished.")
 
 
