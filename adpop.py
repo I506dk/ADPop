@@ -18,7 +18,7 @@ while True:
         break
     except Exception as e:
         Missing_Library = str(e).strip("No module named ")
-        Missing_Library = Missing_Library.strip(" ")
+        Missing_Library = Missing_Library.strip("'")
         
         if Missing_Library == "area_code_nanp":
             install_library("py-area-code-nanp")
