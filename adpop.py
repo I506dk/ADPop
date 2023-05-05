@@ -412,13 +412,25 @@ def parse():
 if __name__ == '__main__':
     # Get command line arguments
     args = parse()
-    
-    # Define arguments
-    domain = args.domain
-    user_count = args.user_count
-    company_name = args.company_name
-    mode = args.mode
-    password_length = args.password_length
+
+    # Check arguments, and if they aren't passed, ask user for them
+    # Create a list of argument keys
+    argument_keys = vars(args).keys()
+
+    # For each of the arguments, check to see if they are equal to None.
+    # If equal to none, prompt user to input a values
+    for key in argument_keys:
+        if getattr(args, key) is None:
+            if key == "domain":
+                args.server = input("The Domain to create users and OUs in: ")
+            if key == "user_count":
+                args.database = input("The total number of users to create: ")
+            if key == "company_name":
+                args.service_account = input("The company name to assign users to in Active Directory: ")
+            if key == "mode":
+                args.service_account_password = input("The mode to run the script in. This determines whether OUs or Groups get created (ou for OUs and group for Groups): ")
+            if key == "password_length":
+                args.admin_password = input("The default password length for all users (passwords are randomly generated): ")
     
     # Determine whether to use groups or ou's for organization
     # Default to using groups and not ou's
