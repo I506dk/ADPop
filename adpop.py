@@ -422,15 +422,22 @@ if __name__ == '__main__':
     for key in argument_keys:
         if getattr(args, key) is None:
             if key == "domain":
-                args.server = input("The Domain to create users and OUs in: ")
+                args.domain = input("The Domain to create users and OUs in: ")
             if key == "user_count":
-                args.database = input("The total number of users to create: ")
+                args.user_count = input("The total number of users to create: ")
             if key == "company_name":
-                args.service_account = input("The company name to assign users to in Active Directory: ")
+                args.company_name = input("The company name to assign users to in Active Directory: ")
             if key == "mode":
-                args.service_account_password = input("The mode to run the script in. This determines whether OUs or Groups get created (ou for OUs and group for Groups): ")
+                args.mode = input("The mode to run the script in. This determines whether OUs or Groups get created (ou for OUs and group for Groups): ")
             if key == "password_length":
-                args.admin_password = input("The default password length for all users (passwords are randomly generated): ")
+                args.password_length = input("The default password length for all users (passwords are randomly generated): ")
+    
+    # Assign variables
+    domain = args.domain
+    user_count = args.user_count
+    company_name = args.company_name
+    mode = args.mode
+    password_length = args.password_length
     
     # Determine whether to use groups or ou's for organization
     # Default to using groups and not ou's
