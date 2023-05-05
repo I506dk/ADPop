@@ -390,20 +390,20 @@ def parse():
     )
 
     # Add argument that contains the domain name that users will be created in
-    parser.add_argument("-d", dest="domain", default="test.lab", action="store", type=str, required=False,
-                        help="The fully qualified domain name where users should be created. Default is 'test.lab'")
+    parser.add_argument("-d", dest="domain", action="store", type=str, required=False,
+                        help="The fully qualified domain name where users should be created.")
     # Add argument that contains the number of users to create
-    parser.add_argument("-u", dest="user_count", default=10000, action="store", type=int, required=False,
-                        help="The number of users to create. Default is 10k.")
+    parser.add_argument("-u", dest="user_count", action="store", type=int, required=False,
+                        help="The number of users to create.")
     # Add argument that contains the company name to assign to users                 
-    parser.add_argument("-c", dest="company_name", default="Test Company", action="store", type=str, required=False,
-                        help="The company name to be assigned to users. Default is 'Test Company'")
+    parser.add_argument("-c", dest="company_name", action="store", type=str, required=False,
+                        help="The company name to be assigned to users.")
     # Add argument that the creation mode, Organizational Units vs. Groups
-    parser.add_argument("-m", dest="mode", action="store", default="groups", type=str, required=False,
-                        help="The mode to run the script in. Creating OUs vs Creating Groups. Default is 'groups'.")
+    parser.add_argument("-m", dest="mode", action="store", type=str, required=False,
+                        help="The mode to run the script in. Creating OUs vs Creating Groups.")
     # Add argument that the creation mode, Organizational Units vs. Groups
-    parser.add_argument("-p", dest="password_length", action="store", default=16, type=int, required=False,
-                        help="The password length for created users. Default is 16.")
+    parser.add_argument("-p", dest="password_length", action="store", type=int, required=False,
+                        help="The password length for created users.")
 
     return parser.parse_args()
 
